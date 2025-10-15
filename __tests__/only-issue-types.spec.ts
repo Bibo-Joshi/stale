@@ -237,4 +237,54 @@ describe('only-issue-types option', () => {
       'A question with spaces'
     ]);
   });
+
+  test('should not match when configured type does not include emoji prefix', async () => {
+    const opts: IIssuesProcessorOptions = {
+      ...DefaultProcessorOptions,
+      onlyIssueTypes: 'question'
+    };
+    const TestIssueList: Issue[] = [
+      generateIssue(
+        opts,
+        1,
+        'A question with emoji - should be skipped',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        '❔ question'
+      ),
+      generateIssue(
+        opts,
+        2,
+        'A plain question - should be processed',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        'question'
+      )
+    ];
+    const processor = new IssuesProcessorMock(
+      opts,
+      alwaysFalseStateMock,
+      async p => (p === 1 ? TestIssueList : []),
+      async () => [],
+      async () => new Date().toDateString()
+    );
+    await processor.processIssues(1);
+    expect(processor.staleIssues.map(i => i.title)).toEqual([
+      'A plain question - should be processed'
+    ]);
+  });
 });
