@@ -257,44 +257,15 @@ export class IssuesProcessor {
         .split(',')
         .map(t => t.trim().toLowerCase())
         .filter(Boolean);
-      
-      issueLogger.info(
-        `Option ${issueLogger.createOptionLink(
-          Option.OnlyIssueTypes
-        )} is set. Allowed types: [${allowedTypes.map(t => `'${t}'`).join(', ')}]`
-      );
-      
-      const issueType = (issue.issue_type || '').trim().toLowerCase();
-      const issueTypeRaw = issue.issue_type;
-      
-      issueLogger.info(
-        `$$type has issue_type: ${issueTypeRaw === undefined ? 'undefined' : `'${issueTypeRaw}'`} (normalized: '${issueType}')`
-      );
-      
-      // Check each allowed type for debugging
-      let matched = false;
-      for (const allowedType of allowedTypes) {
-        const matches = issueType === allowedType;
-        issueLogger.info(
-          `  Comparing normalized type '${issueType}' === '${allowedType}': ${matches}`
-        );
-        if (matches) {
-          matched = true;
-        }
-      }
-      
-      if (!matched) {
+      const issueType = (issue.issue_type || '').toLowerCase();
+      if (!allowedTypes.includes(issueType)) {
         issueLogger.info(
           `Skipping this $$type because its type ('${
-            issueTypeRaw
+            issue.issue_type
           }') is not in onlyIssueTypes (${allowedTypes.join(', ')})`
         );
         IssuesProcessor._endIssueProcessing(issue);
         return;
-      } else {
-        issueLogger.info(
-          `Continuing to process this $$type because its type matches onlyIssueTypes filter`
-        );
       }
     }
 
