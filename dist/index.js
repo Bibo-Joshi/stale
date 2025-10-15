@@ -518,7 +518,7 @@ class IssuesProcessor {
                     .split(',')
                     .map(t => t.trim().toLowerCase())
                     .filter(Boolean);
-                const issueType = (issue.issue_type || '').toLowerCase();
+                const issueType = (issue.issue_type || '').trim().toLowerCase();
                 if (!allowedTypes.includes(issueType)) {
                     issueLogger.info(`Skipping this $$type because its type ('${issue.issue_type}') is not in onlyIssueTypes (${allowedTypes.join(', ')})`);
                     IssuesProcessor._endIssueProcessing(issue);

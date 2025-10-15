@@ -257,7 +257,7 @@ export class IssuesProcessor {
         .split(',')
         .map(t => t.trim().toLowerCase())
         .filter(Boolean);
-      const issueType = (issue.issue_type || '').toLowerCase();
+      const issueType = (issue.issue_type || '').trim().toLowerCase();
       if (!allowedTypes.includes(issueType)) {
         issueLogger.info(
           `Skipping this $$type because its type ('${

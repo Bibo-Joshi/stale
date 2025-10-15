@@ -122,4 +122,119 @@ describe('only-issue-types option', () => {
       'A feature'
     ]);
   });
+
+  test('should handle issue types with emoji and special characters like "❔ question"', async () => {
+    const opts: IIssuesProcessorOptions = {
+      ...DefaultProcessorOptions,
+      onlyIssueTypes: '❔ question'
+    };
+    const TestIssueList: Issue[] = [
+      generateIssue(
+        opts,
+        1,
+        'A question with emoji',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        '❔ question'
+      ),
+      generateIssue(
+        opts,
+        2,
+        'A feature',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        'feature'
+      ),
+      generateIssue(
+        opts,
+        3,
+        'No type',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        undefined
+      )
+    ];
+    const processor = new IssuesProcessorMock(
+      opts,
+      alwaysFalseStateMock,
+      async p => (p === 1 ? TestIssueList : []),
+      async () => [],
+      async () => new Date().toDateString()
+    );
+    await processor.processIssues(1);
+    expect(processor.staleIssues.map(i => i.title)).toEqual([
+      'A question with emoji'
+    ]);
+  });
+
+  test('should trim whitespace from issue types before comparing', async () => {
+    const opts: IIssuesProcessorOptions = {
+      ...DefaultProcessorOptions,
+      onlyIssueTypes: 'question'
+    };
+    const TestIssueList: Issue[] = [
+      generateIssue(
+        opts,
+        1,
+        'A question with spaces',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        ' question '
+      ),
+      generateIssue(
+        opts,
+        2,
+        'A bug',
+        '2020-01-01T17:00:00Z',
+        '2020-01-01T17:00:00Z',
+        false,
+        false,
+        [],
+        false,
+        false,
+        undefined,
+        [],
+        'bug'
+      )
+    ];
+    const processor = new IssuesProcessorMock(
+      opts,
+      alwaysFalseStateMock,
+      async p => (p === 1 ? TestIssueList : []),
+      async () => [],
+      async () => new Date().toDateString()
+    );
+    await processor.processIssues(1);
+    expect(processor.staleIssues.map(i => i.title)).toEqual([
+      'A question with spaces'
+    ]);
+  });
 });
